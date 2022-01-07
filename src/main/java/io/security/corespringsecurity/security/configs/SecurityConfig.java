@@ -4,6 +4,7 @@ import io.security.corespringsecurity.repository.ResourcesRepository;
 import io.security.corespringsecurity.security.common.AjaxLoginAuthenticationEntryPoint;
 import io.security.corespringsecurity.security.common.FormWebAuthenticationDetailsSource;
 import io.security.corespringsecurity.security.factory.UrlResourcesMapFactoryBean;
+import io.security.corespringsecurity.security.filter.PermitAllFilter;
 import io.security.corespringsecurity.security.handler.AjaxAuthenticationFailureHandler;
 import io.security.corespringsecurity.security.handler.AjaxAuthenticationSuccessHandler;
 import io.security.corespringsecurity.security.handler.FormAccessDeniedHandler;
@@ -54,6 +55,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private AuthenticationFailureHandler formAuthenticationFailureHandler;
     @Autowired
     private SecurityResourceService securityResourceService;
+
+    private final String[] PERMIT_ALL_RESOURCES = {"/", "/login", "/user/login/**"};
 
     @Override
     public void configure(WebSecurity web) throws Exception {
@@ -143,14 +146,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     /* 인가 */
 
     @Bean
-    public FilterSecurityInterceptor customFilterSecurityInterceptor() throws Exception {
+    public PermitAllFilter customFilterSecurityInterceptor() throws Exception {
 
-        FilterSecurityInterceptor filterSecurityInterceptor = new FilterSecurityInterceptor();
+        PermitAllFilter permitAllFilter = new PermitAllFilter(PERMIT_ALL_RESOURCES);
 
-        filterSecurityInterceptor.setSecurityMetadataSource(urlFilterInvocationSecurityMetadataSource()); // 메타데이터 소스 재정의
-        filterSecurityInterceptor.setAccessDecisionManager(affirmativeBased()); //decision 정책 설정
-        filterSecurityInterceptor.setAuthenticationManager(authenticationManagerBean()); // 인증된 사용자인지 확인 필요하기에
-        return filterSecurityInterceptor;
+        permitAllFilter.setSecurityMetadataSource(urlFilterInvocationSecurityMetadataSource()); // 메타데이터 소스 재정의
+        permitAllFilter.setAccessDecisionManager(affirmativeBased()); //decision 정책 설정
+        permitAllFilter.setAuthenticationManager(authenticationManagerBean()); // 인증된 사용자인지 확인 필요하기에
+        return permitAllFilter;
     }
 
     private AccessDecisionManager affirmativeBased() {
