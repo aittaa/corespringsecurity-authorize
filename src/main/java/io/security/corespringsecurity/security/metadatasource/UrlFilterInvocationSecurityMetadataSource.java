@@ -14,18 +14,21 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
+import java.security.Security;
 import java.util.*;
 
 public class UrlFilterInvocationSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
 
     //ConfigAttribute : 권한정보가 담긴다.
     //LinkedHashMap : 순서를 유지하는 해시맵 (자원의 순서가 중요하기에..)
-    private LinkedHashMap<RequestMatcher, List<ConfigAttribute>> requestMap = new LinkedHashMap<>();
+    private LinkedHashMap<RequestMatcher, List<ConfigAttribute>> requestMap;
 
-    public UrlFilterInvocationSecurityMetadataSource(LinkedHashMap<RequestMatcher, List<ConfigAttribute>> requestMap) {
+    private SecurityResourceService securityResourceService;
+
+    public UrlFilterInvocationSecurityMetadataSource(LinkedHashMap<RequestMatcher, List<ConfigAttribute>> requestMap, SecurityResourceService securityResourceService) {
         this.requestMap = requestMap;
+        this.securityResourceService = securityResourceService;
     }
-
 
     // 필수구현
     // 필터에서 당 매소드를 호출할 때 FilterInvocation이 들어온다. (FilterInvocation:요청정보)
@@ -74,6 +77,21 @@ public class UrlFilterInvocationSecurityMetadataSource implements FilterInvocati
     }
 
 
+    public void reload(){
+        this.requestMap = securityResourceService.getResourceList();
+
+//        LinkedHashMap<RequestMatcher, List<ConfigAttribute>> reloadedMap = securityResourceService.getResourceList();
+//        Iterator<Map.Entry<RequestMatcher, List<ConfigAttribute>>> itr = reloadedMap.entrySet().iterator();
+//
+//        requestMap.clear();
+//
+//        while(itr.hasNext()){
+//            Map.Entry<RequestMatcher, List<ConfigAttribute>> entry = itr.next();
+//            requestMap.put(entry.getKey(), entry.getValue());
+//        }
+//
+
+    }
 
 
 
